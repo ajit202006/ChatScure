@@ -4,7 +4,7 @@ import User from "../models/user.model";
 import { generateToken } from "../lib/utils";
 
 const signup: RequestHandler = async (req, res) => {
-    const { fullName, email, password, confirmPassword } = req.body;
+    const { fullName, email, password } = req.body;
     try {
         if (password.length < 6) {
             return res.status(400).json({ message: "Password should be at least 6 characters long." });
@@ -29,17 +29,46 @@ const signup: RequestHandler = async (req, res) => {
         } else {
             res.status(400).json({ message: "Invalid user data" });
         }
-        
+
     } catch (error: any) {
         console.log("Error in signup controller", error.message);
         res.send(500).json({ message: "Internal Server Error" });
     }
 }
-const login: RequestHandler = (req, res) => {
-    res.send("login");
+const login: RequestHandler = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        const isCorrectPassword = await bcrypt.compare(password, user.password);
+        if (!isCorrectPassword) {
+            return res.status(400).json({ message: "Incorrect Password" });
+        }
+
+        generateToken(JSON.stringify(user._id), res);
+
+        res.status(200).json({
+            _id: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            profilePic: ""
+        });
+    } catch (error: any) {
+        console.log("Error in login controller", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
 }
 const logout: RequestHandler = (req, res) => {
-    res.send("logout");
+    try {
+        res.cookie("jwt", "", { maxAge: 0 });
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error: any) {
+        console.log("Error in logout controller", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
 }
 
 export { signup, logout, login };
