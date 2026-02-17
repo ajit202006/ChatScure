@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import User from "../models/user.model";
+import Message from "../models/message.model";
 
 const getUsersForSidebar: RequestHandler = async (req, res) => {
     try {
@@ -12,4 +13,21 @@ const getUsersForSidebar: RequestHandler = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 }
-export { getUsersForSidebar };
+
+const getMessages: RequestHandler = async (req, res) => {
+    try {
+        const { id: userToChatId } = req.params;
+        const myId = req.user._id;
+
+        const messages = await Message.find({
+            or: [
+                { senderId: myId, receiverId: userToChatId },
+                { senderId: userToChatId, receiverId: myId }
+            ]
+        });
+    } catch (error: any) {
+
+    }
+}
+
+export { getUsersForSidebar, getMessages };
