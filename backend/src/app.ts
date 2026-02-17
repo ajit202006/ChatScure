@@ -1,21 +1,33 @@
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.routes";
 import connectDB from "./lib/db";
 
-dotenv.config()
+declare global{
+    namespace Express{
+        interface Request{
+            user : {}
+        }
+    }
+}
+
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
-const MONGODB_URI = process.env.MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI;
 
-app.use("/",(req,res)=>{
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/api/auth", authRoutes);
+
+app.use("/", (req, res) => {
     res.send("This is chatscure application");
-})
+});
 
-app.use("/api/auth",authRoutes);
-
-app.listen(PORT,()=>{
-    console.log("Server running on port "+PORT);
-    connectDB(MONGODB_URI||"");
-})
+app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
+    connectDB(MONGODB_URI || "");
+});

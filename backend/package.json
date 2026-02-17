@@ -4,10 +4,10 @@
   "main": "app.ts",
   "license": "MIT",
   "scripts": {
-    "build":"tsc --noEmitOnError",
+    "build": "tsc --noEmitOnError",
     "start": "node ./dist/app.js",
     "start:ts": "ts-node ./src/app.ts",
-    "start:dev":"nodemon ./src/app.ts"
+    "start:dev": "nodemon ./src/app.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.97",
