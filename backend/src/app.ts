@@ -1,14 +1,15 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import { ObjectId } from "mongoose";
 
 import authRoutes from "./routes/auth.routes";
 import connectDB from "./lib/db";
 
-declare global{
-    namespace Express{
-        interface Request{
-            user : {}
+declare global {
+    namespace Express {
+        interface Request {
+            user: any
         }
     }
 }
