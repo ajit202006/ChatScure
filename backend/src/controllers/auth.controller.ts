@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model";
 import { generateToken } from "../lib/utils";
+import cloudinary from "../lib/cloudinary";
 
 const signup: RequestHandler = async (req, res) => {
     const { fullName, email, password } = req.body;
@@ -23,7 +24,7 @@ const signup: RequestHandler = async (req, res) => {
         });
 
         if (newUser) {
-            generateToken(JSON.stringify(newUser._id), res);
+            generateToken(`${newUser._id}`, res);
             await newUser.save();
             res.status(201).json(newUser);
         } else {
@@ -48,7 +49,7 @@ const login: RequestHandler = async (req, res) => {
             return res.status(400).json({ message: "Incorrect Password" });
         }
 
-        generateToken(JSON.stringify(user._id), res);
+        generateToken(`${user._id}`, res);
 
         res.status(200).json({
             _id: user._id,
@@ -71,4 +72,35 @@ const logout: RequestHandler = (req, res) => {
     }
 }
 
-export { signup, logout, login };
+const updateProfile: RequestHandler = async (req, res) => {
+    try {
+        const { profilePic } = req.body;
+        const userId = req.user._id;
+        if (!profilePic) {
+            res.send(400).json({ message: "Profile picture required" });
+        }
+
+        const uploadResponse = await cloudinary.uploader.upload(profilePic);
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilePic: uploadResponse.secure_url },
+            { new: true }
+        );
+
+        res.send(updatedUser);
+    } catch (error: any) {
+        console.log("Error in updateProfile controller", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+const checkAuth: RequestHandler = async (req, res) => {
+    try {
+        res.status(200).json(req.user);
+    } catch (error: any) {
+        console.log("Error in checkAuth controller", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+export { signup, logout, login, updateProfile, checkAuth };
