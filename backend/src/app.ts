@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { ObjectId } from "mongoose";
 
 import authRoutes from "./routes/auth.routes";
+import messageRoutes from "./routes/message.routes";
 import connectDB from "./lib/db";
 
 declare global {
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/message", messageRoutes);
 
 app.use("/", (req, res) => {
     res.send("This is chatscure application");
