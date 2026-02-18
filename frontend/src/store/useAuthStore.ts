@@ -31,9 +31,31 @@ const useAuthStore: any = create((set) => ({
             set({ authUser: res.data })
             toast.success("Account created successfully");
         } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error.response.data.message);
         } finally {
             set({ isSigningUp: false });
+        }
+    },
+
+    login: async (data: { email: string, password: string }) => {
+        try {
+            set({ isLoggingIn: true });
+            const res = await axiosInstance.post("/auth/login", data);
+            set({ authUser: res.data });
+            toast.success("Logged in succesfully");
+        } catch (error: any) {
+            toast.error(error.response.data.message);
+        } finally {
+            set({ isLoggingIn: false });
+        }
+    },
+
+    logout: async () => {
+        try {
+            await axiosInstance.post("/auth/logout");
+            set({ authUser: null });
+        } catch (error: any) {
+            toast.error(error.response.data.message);
         }
     }
 }));
