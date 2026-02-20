@@ -14,7 +14,7 @@ const protectRoute: RequestHandler = async (req, res, next) => {
             return res.status(401).json({ message: "Unauthorized - Invalid token" });
         }
 
-        const user = await User.findById(decoded.userId, { email: 1, fullName: 1, profilePic: 1 });
+        const user = await User.findById(decoded.userId, { email: 1, fullName: 1, profilePic: 1, createdAt: 1 });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }

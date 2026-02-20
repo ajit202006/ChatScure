@@ -2,7 +2,8 @@ import { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model";
 import { generateToken } from "../lib/utils";
-import cloudinary from "../lib/cloudinary";
+import cloudinary, { extractPublicId } from "../lib/cloudinary";
+
 
 const signup: RequestHandler = async (req, res) => {
     const { fullName, email, password } = req.body;
@@ -26,14 +27,21 @@ const signup: RequestHandler = async (req, res) => {
         if (newUser) {
             generateToken(`${newUser._id}`, res);
             await newUser.save();
-            res.status(201).json(newUser);
+
+            res.status(201).json({
+                _id: newUser._id,
+                fullName: newUser.fullName,
+                email: newUser.email,
+                profilePic: "",
+                createdAt: newUser.createdAt
+            });
         } else {
             res.status(400).json({ message: "Invalid user data" });
         }
 
     } catch (error: any) {
         console.log("Error in signup controller", error.message);
-        res.send(500).json({ message: "Internal Server Error" });
+        res.status(500).json({ message: "Internal Server Error" });
     }
 }
 const login: RequestHandler = async (req, res) => {
@@ -55,7 +63,8 @@ const login: RequestHandler = async (req, res) => {
             _id: user._id,
             fullName: user.fullName,
             email: user.email,
-            profilePic: ""
+            profilePic: user.profilePic,
+            createdAt: user.createdAt
         });
     } catch (error: any) {
         console.log("Error in login controller", error.message);
@@ -77,17 +86,26 @@ const updateProfile: RequestHandler = async (req, res) => {
         const { profilePic } = req.body;
         const userId = req.user._id;
         if (!profilePic) {
-            res.send(400).json({ message: "Profile picture required" });
+            res.status(400).json({ message: "Profile picture required" });
         }
 
+        if (req.user.profilePic) {
+            const public_id = extractPublicId(req.user.profilePic) || "";
+            await cloudinary.uploader.destroy(public_id, { invalidate: true });
+        }
         const uploadResponse = await cloudinary.uploader.upload(profilePic);
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { profilePic: uploadResponse.secure_url },
-            { new: true }
+            { returnDocument: 'after' }
         );
-
-        res.send(updatedUser);
+        res.status(200).json({
+            _id: updatedUser?._id,
+            fullName: updatedUser?.fullName,
+            email: updatedUser?.email,
+            profilePic: updatedUser?.profilePic,
+            createdAt: updatedUser?.createdAt
+        });
     } catch (error: any) {
         console.log("Error in updateProfile controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
