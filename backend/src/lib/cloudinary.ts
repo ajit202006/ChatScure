@@ -9,4 +9,13 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET || "",
 });
 
+// to extract publicId from cloudinary url
+const extractPublicId = (url: string) => {
+    const parts = url.split('/');
+    const publicIdWithExtension = parts[parts.length - 1] || "";
+    const publicId = publicIdWithExtension.split('.')[0];
+    return publicId;
+};
+
 export default cloudinary;
+export { extractPublicId };
