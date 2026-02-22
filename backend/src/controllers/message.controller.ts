@@ -1,7 +1,9 @@
 import { RequestHandler } from "express";
+import mongoose from "mongoose";
 import User from "../models/user.model";
 import Message from "../models/message.model";
 import cloudinary from "../lib/cloudinary";
+import { getReceiverSocketId, io } from "../lib/socket";
 
 const getUsersForSidebar: RequestHandler = async (req, res) => {
     try {
@@ -17,15 +19,18 @@ const getUsersForSidebar: RequestHandler = async (req, res) => {
 
 const getMessages: RequestHandler = async (req, res) => {
     try {
-        const { id: userToChatId } = req.params;
+        const id = req.params.id;
+        const userToChatId = new mongoose.Types.ObjectId(`${id}`);
         const myId = req.user._id;
 
         const messages = await Message.find({
-            or: [
+            $or: [
                 { senderId: myId, receiverId: userToChatId },
                 { senderId: userToChatId, receiverId: myId }
             ]
         });
+
+        res.status(200).json(messages);
     } catch (error: any) {
         console.log("Error in getUsersForSidebar controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
@@ -40,7 +45,7 @@ const sendMessage: RequestHandler = async (req, res) => {
         let imageUrl;
         if (image) {
             const uploadResponse = await cloudinary.uploader.upload(image);
-            imageUrl = uploadResponse.secrure_url;
+            imageUrl = uploadResponse.secure_url;
         }
 
         const newMessage = new Message({
@@ -50,6 +55,11 @@ const sendMessage: RequestHandler = async (req, res) => {
             image: imageUrl
         })
         await newMessage.save();
+
+        const receiverSocketId = getReceiverSocketId(`${receiverId}`);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("newMessage", newMessage);
+        }
 
         res.status(201).json(newMessage);
     } catch (error: any) {
