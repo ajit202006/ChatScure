@@ -1,18 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Users } from "lucide-react"
 import { useChatStore } from "../store/useChatStore"
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 
+interface UserInterface {
+    _id: string,
+    profilePic: string,
+    fullName: string
+}
 
 const Sidebar = () => {
     const { users, getUsers, isUsersLoading, selectedUser, setSelectedUser } = useChatStore();
     const { onlineUsers } = useAuthStore();
+    const [showOfflineUsers, setShowOfflineUsers] = useState(true);
+
     useEffect(() => {
         getUsers();
     }, [getUsers]);
 
-    if (isUsersLoading) return <SidebarSkeleton />
+    if (isUsersLoading) return <SidebarSkeleton />;
+
+    const filteredUsers = showOfflineUsers ? users : users.filter((user: UserInterface) => onlineUsers.includes(user._id));
     return (
         <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
             <div className="border-b border-base-300 w-full p-5">
@@ -20,10 +29,22 @@ const Sidebar = () => {
                     <Users className="size-6" />
                     <span className="font-medium hidden lg:block">Contacts</span>
                 </div>
+                <div className="mt-3 hidden lg:flex items-center gap-2">
+                    <label className="cursor-pointer flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={!showOfflineUsers}
+                            onChange={(e) => setShowOfflineUsers(!e.target.checked)}
+                            className="checkbox checkbox-sm"
+                        />
+                        <span className="text-sm">Show online only</span>
+                    </label>
+                    <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
+                </div>
             </div>
 
             <div className="overflow-y-auto w-full py-3">
-                {users.map((user: { _id: string, profilePic: string, fullName: string }) =>
+                {filteredUsers.map((user: UserInterface) =>
                     <button
                         key={user._id}
                         onClick={() => setSelectedUser(user)}
@@ -35,13 +56,13 @@ const Sidebar = () => {
                                 alt={user.fullName}
                                 className="size-12 rounded-full object-cover"
                             />
+                            {onlineUsers.includes(`${user._id}`) && (
+                                <span
+                                    className="absolute bottom-0.5 right-0.5 size-3 bg-green-500 rounded-full "
+                                />
+                            )
+                            }
                         </div>
-                        {onlineUsers.includes(user._id) && (
-                            <span
-                                className="absolute bottom-0 right-0 size-3 bg-green-500 
-                  rounded-full ring-2 ring-zinc-900"
-                            />
-                        )}
 
                         {/* User info - only visible on larger screens */}
                         <div className="hidden lg:block text-left min-w-0">
