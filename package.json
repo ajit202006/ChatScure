@@ -1,0 +1,12 @@
+{
+  "name": "chatscure",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ajit202006/ChatScure.git",
+  "author": "<ajitvishwakarma202006@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn --cwd backend install && yarn --cwd frontend install && yarn --cwd frontend build && yarn --cwd backend build",
+    "start": "yarn --cwd backend start"
+  }
+}
