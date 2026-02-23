@@ -22,7 +22,7 @@ dotenv.config();
 
 const PORT = process.env.PORT;
 const MONGODB_URI = process.env.MONGODB_URI;
-const __dirname = path.resolve();
+const _dirname = path.resolve();
 
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
@@ -35,14 +35,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "../frontend/dist")));
+    app.use(express.static(path.join(_dirname, "../frontend/dist")));
 
     app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+        res.sendFile(path.join(_dirname, "../frontend", "dist", "index.html"));
     })
 }
-
-
 
 server.listen(PORT, () => {
     console.log("Server running on port " + PORT);

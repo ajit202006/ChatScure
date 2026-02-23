@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "app.ts",
   "license": "MIT",
+  "type": "commonjs",
   "scripts": {
     "build": "tsc --noEmitOnError",
     "start": "node ./dist/app.js",
