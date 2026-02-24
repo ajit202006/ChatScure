@@ -11,7 +11,7 @@ const SettingsPage = () => {
   const themes = ["light", "dark", "cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter", "dim", "nord", "sunset"
   ];
   return (
-    <div className="h-screen container mx-auto px-4 pt-20 max-w-5xl">
+    <div className="h-screen container mx-auto px-4 pb-2 pt-20 max-w-5xl overflow-y-scroll">
       <div className="space-y-6">
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">Theme</h2>
