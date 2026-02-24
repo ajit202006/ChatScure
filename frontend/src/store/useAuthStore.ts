@@ -3,10 +3,11 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 import { axiosInstance } from "../lib/Axios";
+import type { UseAuthStoreType } from "../types";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/";
 
-const useAuthStore: any = create((set, get: any) => ({
+const useAuthStore = create<UseAuthStoreType>((set, get) => ({
     authUser: null,
     isSigningUp: false,
     isLoggingIn: false,
@@ -70,7 +71,7 @@ const useAuthStore: any = create((set, get: any) => ({
         }
     },
 
-    updateProfile: async (data: { profilePic: ArrayBuffer }) => {
+    updateProfile: async (data: { profilePic:  string | ArrayBuffer | null  }) => {
         set({ isUpdatingProfile: true });
         try {
             const res = await axiosInstance.put("/auth/update-profile", data);
@@ -102,7 +103,7 @@ const useAuthStore: any = create((set, get: any) => ({
     },
 
     disconnectSocket: () => {
-        if (get().socket?.connected) get().socket.disconnect();
+        if (get().socket?.connected) get().socket?.disconnect();
     }
 }));
 

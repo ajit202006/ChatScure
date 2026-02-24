@@ -29,7 +29,7 @@ const ProfilePage = () => {
 
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
-              <img src={authUser.profilePic || "/avatar.png"} alt="Profile" className="size-32 rounded-full object-cover border-4 " />
+              <img src={authUser?.profilePic || "/avatar.png"} alt="Profile" className="size-32 rounded-full object-cover border-4 " />
               <label
                 htmlFor="avatar-upload"
                 className={`

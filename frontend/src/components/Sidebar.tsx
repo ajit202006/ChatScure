@@ -4,12 +4,6 @@ import { useChatStore } from "../store/useChatStore"
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 
-interface UserInterface {
-    _id: string,
-    profilePic: string,
-    fullName: string
-}
-
 const Sidebar = () => {
     const { users, getUsers, isUsersLoading, selectedUser, setSelectedUser } = useChatStore();
     const { onlineUsers } = useAuthStore();
@@ -21,7 +15,7 @@ const Sidebar = () => {
 
     if (isUsersLoading) return <SidebarSkeleton />;
 
-    const filteredUsers = showOfflineUsers ? users : users.filter((user: UserInterface) => onlineUsers.includes(user._id));
+    const filteredUsers = showOfflineUsers ? Array.from(users) : users.filter((user) => onlineUsers.includes(user._id));
     return (
         <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
             <div className="border-b border-base-300 w-full p-5">
@@ -44,7 +38,7 @@ const Sidebar = () => {
             </div>
 
             <div className="overflow-y-auto w-full py-3">
-                {filteredUsers.map((user: UserInterface) =>
+                {filteredUsers.map((user) =>
                     <button
                         key={user._id}
                         onClick={() => setSelectedUser(user)}
